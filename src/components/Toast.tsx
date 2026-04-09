@@ -35,18 +35,21 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map(toast => (
           <div
             key={toast.id}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white text-sm min-w-[280px] ${
-              toast.type === 'success' ? 'bg-green-600' :
-              toast.type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+            className={`flex min-w-[280px] items-center gap-3 border border-[var(--siu-border)] bg-white px-4 py-3 text-sm text-slate-800 shadow-lg ${
+              toast.type === 'success' ? 'border-l-4 border-l-emerald-600' :
+              toast.type === 'error' ? 'border-l-4 border-l-red-600' : 'border-l-4 border-l-[var(--siu-blue)]'
             }`}
+            style={{ borderRadius: '2px' }}
           >
-            {toast.type === 'success' && <CheckCircle size={18} />}
-            {toast.type === 'error' && <XCircle size={18} />}
-            {toast.type === 'info' && <AlertCircle size={18} />}
-            <span className="flex-1">{toast.message}</span>
+            {toast.type === 'success' && <CheckCircle size={18} className="shrink-0 text-emerald-600" />}
+            {toast.type === 'error' && <XCircle size={18} className="shrink-0 text-red-600" />}
+            {toast.type === 'info' && <AlertCircle size={18} className="shrink-0 text-[var(--siu-blue)]" />}
+            <span className="flex-1 font-medium leading-snug">{toast.message}</span>
             <button
+              type="button"
               onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-              className="text-white/80 hover:text-white"
+              className="shrink-0 text-slate-400 hover:text-slate-700"
+              aria-label="Cerrar aviso"
             >
               <X size={16} />
             </button>

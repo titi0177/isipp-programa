@@ -32,7 +32,12 @@ attendance:attendance(*)
 `)
 .eq("subject_id",id)
 
-setRows(data||[])
+const normalized = (data || []).map((r: any) => ({
+  ...r,
+  percentage: r.percentage ?? r.attendance?.[0]?.percentage ?? '',
+}))
+
+setRows(normalized)
 }
 
 function update(i:number,val:number){
@@ -44,18 +49,20 @@ setRows(copy)
 async function save(){
 
 for(const r of rows){
+const pct = typeof r.percentage === 'number' ? r.percentage : Number(r.percentage)
+if (Number.isNaN(pct)) continue
 
 const existing = r.attendance?.[0]
 
 if(existing){
 await supabase.from("attendance")
-.update({ percentage:r.percentage })
+.update({ percentage: pct })
 .eq("id",existing.id)
 }else{
 await supabase.from("attendance")
 .insert({
 enrollment_id:r.id,
-percentage:r.percentage
+percentage: pct
 })
 }
 
@@ -81,7 +88,7 @@ setSelected(e.target.value)
 loadStudents(e.target.value)
 }}
 >
-<option>Seleccionar materia</option>
+<option value="">Seleccionar materia</option>
 {subjects.map(s=>(
 <option key={s.id} value={s.id}>{s.name}</option>
 ))}

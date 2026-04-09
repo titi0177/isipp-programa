@@ -47,8 +47,8 @@ function HistoryPage() {
           <h1 className="text-2xl font-bold text-gray-900">Historial Académico</h1>
           <p className="text-gray-500 text-sm mt-1">Registro completo de tu trayectoria académica</p>
         </div>
-        <button onClick={handlePrint} className="btn-primary flex items-center gap-2">
-          <Download size={16} /> Descargar PDF
+        <button type="button" onClick={handlePrint} className="btn-primary flex items-center gap-2" title="Abre el diálogo de impresión del navegador (puede guardar como PDF)">
+          <Download size={16} /> Imprimir / guardar PDF
         </button>
       </div>
 
@@ -66,10 +66,11 @@ function HistoryPage() {
       {loading ? <div className="card animate-pulse h-64 bg-gray-100" /> : (
         Object.keys(byYear).map(year => (
           <div key={year} className="card p-0 overflow-hidden">
-            <div className="bg-[#4A0F18] px-4 py-2">
-              <h3 className="text-white font-semibold text-sm">{year}° Año</h3>
+            <div className="siu-band-header">
+              <h3 className="text-sm font-bold tracking-wide text-white">{year}° Año</h3>
             </div>
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="bg-gray-50 text-xs text-gray-500 border-b">
                   {['Materia', 'Código', 'Profesor', 'Parcial', 'Final', 'Asistencia', 'Estado'].map(h => (
@@ -78,19 +79,24 @@ function HistoryPage() {
                 </tr>
               </thead>
               <tbody>
-                {byYear[year].map((enr: any) => (
+                {byYear[year].map((enr: any) => {
+                  const g = Array.isArray(enr.grade) ? enr.grade[0] : enr.grade
+                  const att = Array.isArray(enr.attendance) ? enr.attendance[0] : enr.attendance
+                  return (
                   <tr key={enr.id} className="border-b border-gray-50 hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium">{enr.subject?.name}</td>
                     <td className="px-4 py-3 text-gray-500">{enr.subject?.code}</td>
                     <td className="px-4 py-3 text-gray-600">{enr.subject?.professor?.name || '-'}</td>
-                    <td className="px-4 py-3">{enr.grade?.[0]?.partial_grade ?? '-'}</td>
-                    <td className="px-4 py-3">{enr.grade?.[0]?.final_grade ?? '-'}</td>
-                    <td className="px-4 py-3">{enr.attendance?.[0]?.percentage != null ? `${enr.attendance[0].percentage}%` : '-'}</td>
-                    <td className="px-4 py-3"><StatusBadge status={enr.grade?.[0]?.status || 'in_progress'} /></td>
+                    <td className="px-4 py-3">{g?.partial_grade ?? '-'}</td>
+                    <td className="px-4 py-3">{g?.final_grade ?? g?.final_exam_grade ?? '-'}</td>
+                    <td className="px-4 py-3">{att?.percentage != null ? `${att.percentage}%` : '-'}</td>
+                    <td className="px-4 py-3"><StatusBadge status={g?.status || 'in_progress'} /></td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
+            </div>
           </div>
         ))
       )}

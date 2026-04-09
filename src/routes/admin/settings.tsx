@@ -28,12 +28,12 @@ function SettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-        <Settings size={24} className="text-[#7A1E2C]" /> Configuración
+        <Settings size={24} className="text-[var(--siu-blue)]" /> Configuración
       </h1>
 
       <div className="card">
         <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Lock size={16} className="text-[#7A1E2C]" /> Cambiar Contraseña del Administrador
+          <Lock size={16} className="text-[var(--siu-blue)]" /> Cambiar contraseña del operador
         </h2>
         <form onSubmit={handleChangePassword} className="space-y-4">
           <div>

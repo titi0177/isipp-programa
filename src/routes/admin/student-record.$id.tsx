@@ -17,7 +17,7 @@ function StudentRecord() {
 
   useEffect(() => {
     load()
-  }, [])
+  }, [id])
 
   async function load() {
 

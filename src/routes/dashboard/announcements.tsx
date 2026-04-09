@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Bell } from 'lucide-react'
 import type { Announcement } from '@/types'
+import { useRealtimeAnnouncements } from '@/hooks/useRealtimeAnnouncements'
 
 export const Route = createFileRoute('/dashboard/announcements')({
   component: AnnouncementsPage,
@@ -12,10 +13,18 @@ function AnnouncementsPage() {
   const [items, setItems] = useState<Announcement[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    supabase.from('announcements').select('*').order('date', { ascending: false })
-      .then(({ data }) => { setItems(data || []); setLoading(false) })
+  const load = useCallback(async () => {
+    setLoading(true)
+    const { data } = await supabase.from('announcements').select('*').order('date', { ascending: false })
+    setItems((data as Announcement[]) || [])
+    setLoading(false)
   }, [])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  useRealtimeAnnouncements(load)
 
   return (
     <div className="space-y-6">
@@ -29,7 +38,7 @@ function AnnouncementsPage() {
               <div key={ann.id} className="card hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-4">
                   <div className="bg-red-50 p-3 rounded-xl flex-shrink-0">
-                    <Bell size={20} className="text-[#7A1E2C]" />
+                    <Bell size={20} className="text-[var(--siu-blue)]" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between gap-2">

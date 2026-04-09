@@ -144,7 +144,7 @@ labels:["1","2","3","4","5","6","7","8","9","10"],
 datasets:[{
 label:"Cantidad de alumnos",
 data:dist,
-backgroundColor:"#7A1E2C",
+backgroundColor:"#582c31",
 borderRadius:4
 }]
 })
@@ -219,11 +219,11 @@ return (
 <div className="space-y-6">
 
 <div>
-<h1 className="text-2xl font-bold text-gray-900">
-Panel de Administración
+<h1 className="siu-page-title text-2xl">
+Panel de administración
 </h1>
-<p className="text-gray-500 text-sm mt-1">
-Resumen del sistema académico
+<p className="siu-page-subtitle mt-1">
+Resumen operativo del sistema (estilo autogestión)
 </p>
 </div>
 

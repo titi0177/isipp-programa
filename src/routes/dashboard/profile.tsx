@@ -44,7 +44,7 @@ function ProfilePage() {
 
       <div className="card">
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 bg-[#7A1E2C] rounded-full flex items-center justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[var(--siu-gold)] bg-[var(--siu-blue)]">
             <User size={28} className="text-white" />
           </div>
           <div>
@@ -72,7 +72,7 @@ function ProfilePage() {
 
       <div className="card">
         <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Lock size={16} className="text-[#7A1E2C]" /> Cambiar Contraseña
+          <Lock size={16} className="text-[var(--siu-blue)]" /> Cambiar contraseña
         </h2>
         <form onSubmit={handleChangePassword} className="space-y-4">
           <div>

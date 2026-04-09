@@ -56,7 +56,7 @@ function AnnouncementsAdminPage() {
         data={items as any}
         actions={(row: any) => (
           <div className="flex items-center gap-2 justify-end">
-            <button onClick={() => { setEditing(row); setModalOpen(true) }} className="p-1.5 text-gray-500 hover:text-[#7A1E2C] hover:bg-red-50 rounded-lg"><Pencil size={15} /></button>
+            <button onClick={() => { setEditing(row); setModalOpen(true) }} className="siu-table-action"><Pencil size={15} /></button>
             <button onClick={() => handleDelete(row.id)} className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={15} /></button>
           </div>
         )}

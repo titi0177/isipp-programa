@@ -3,13 +3,14 @@ import { Sidebar } from '@/components/Sidebar'
 import { TopNav } from '@/components/TopNav'
 import { supabase } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
+import { homePathForRole, isStaffRole } from '@/lib/roles'
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw redirect({ to: '/login' })
-    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') throw redirect({ to: '/dashboard' })
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    if (!isStaffRole(profile?.role)) throw redirect({ to: homePathForRole(profile?.role) })
   },
   component: AdminLayout,
 })
@@ -19,17 +20,17 @@ function AdminLayout() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
-        supabase.from('users').select('full_name').eq('id', user.id).single()
+        supabase.from('profiles').select('full_name').eq('id', user.id).single()
           .then(({ data }) => setUserName(data?.full_name || user.email || ''))
       }
     })
   }, [])
   return (
-    <div className="flex min-h-screen bg-[#F4F4F4]">
+    <div className="flex min-h-screen siu-main-bg">
       <Sidebar role="admin" />
-      <div className="flex-1 ml-64 flex flex-col min-h-screen">
+      <div className="ml-64 flex min-h-screen flex-1 flex-col">
         <TopNav userName={userName} role="admin" />
-        <main className="flex-1 p-6">
+        <main className="flex-1 overflow-auto border-t border-[var(--siu-border-light)] p-6 shadow-inner">
           <Outlet />
         </main>
       </div>

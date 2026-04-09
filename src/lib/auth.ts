@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import type { Role } from '@/types'
+import { normalizeDbRole } from '@/lib/roles'
 
 export async function getCurrentUser() {
   const { data: { user } } = await supabase.auth.getUser()
@@ -8,11 +9,12 @@ export async function getCurrentUser() {
 
 export async function getUserRole(userId: string): Promise<Role | null> {
   const { data } = await supabase
-    .from('users')
+    .from('profiles')
     .select('role')
     .eq('id', userId)
     .single()
-  return (data?.role as Role) || null
+  const r = data?.role
+  return normalizeDbRole(r ?? undefined) ?? null
 }
 
 export async function signIn(email: string, password: string) {

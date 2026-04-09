@@ -1,10 +1,13 @@
 import { Bell, User, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
+
+const LOGO_SRC = '/logo-isipp.png'
 
 interface TopNavProps {
   userName?: string
-  role?: 'admin' | 'student'
+  role?: 'admin' | 'student' | 'professor'
 }
 
 export function TopNav({ userName = 'Usuario', role }: TopNavProps) {
@@ -15,40 +18,79 @@ export function TopNav({ userName = 'Usuario', role }: TopNavProps) {
     window.location.href = '/login'
   }
 
+  const moduleLine =
+    role === 'admin'
+      ? 'Módulo de administración del sistema'
+      : role === 'professor'
+        ? 'Módulo docente — cursadas y evaluaciones'
+        : 'Módulo de autogestión y consultas académicas'
+
   return (
-    <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-30">
-      <div className="flex items-center gap-2">
-        <h1 className="text-lg font-semibold text-[#7A1E2C]">ISIPP Academic System</h1>
-        <span className="hidden md:inline text-gray-400">|</span>
-        <span className="hidden md:inline text-sm text-gray-500">Instituto Superior ISIPP</span>
+    <header className="siu-topnav">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <img src={LOGO_SRC} alt="" className="siu-topnav-logo" width={140} height={48} />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <h1 className="siu-topnav-title truncate text-sm leading-tight sm:text-base">
+            Instituto Superior de Informática Puerto Piray
+          </h1>
+          <p className="siu-topnav-muted hidden truncate sm:block">{moduleLine}</p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <button className="relative p-2 text-gray-500 hover:text-[#7A1E2C] hover:bg-gray-50 rounded-lg transition-colors">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <Link
+          to={role === 'admin' ? '/admin/announcements' : '/dashboard/announcements'}
+          className="relative rounded-sm p-2 text-white/90 transition-colors hover:bg-white/10"
+          title="Novedades"
+        >
           <Bell size={20} />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-[#7A1E2C] rounded-full"></span>
-        </button>
+          <span
+            className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-white ring-2 ring-[var(--isipp-bordo-deep)]"
+            aria-hidden
+          />
+        </Link>
 
         <div className="relative">
           <button
+            type="button"
             onClick={() => setShowMenu(!showMenu)}
-            className="flex items-center gap-2 p-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            className="flex items-center gap-2 rounded-sm py-1.5 pl-1 pr-2 text-white transition-colors hover:bg-white/10"
           >
-            <div className="w-8 h-8 bg-[#7A1E2C] rounded-full flex items-center justify-center">
-              <User size={16} className="text-white" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm border border-white/25 bg-white/15">
+              <User size={17} className="text-white" />
             </div>
-            <div className="hidden md:block text-left">
-              <div className="text-sm font-medium leading-tight">{userName}</div>
-              <div className="text-xs text-gray-500 capitalize">{role}</div>
+            <div className="hidden text-left md:block">
+              <div className="max-w-[160px] truncate text-sm font-semibold leading-tight">
+                {userName}
+              </div>
+              <div className="text-[11px] font-medium uppercase tracking-wide text-white/70">
+                {role === 'admin' ? 'Administración' : role === 'professor' ? 'Docente' : 'Alumno'}
+              </div>
             </div>
-            <ChevronDown size={14} className="text-gray-400" />
+            <ChevronDown size={14} className="text-white/60" />
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
-              <a href={role === 'admin' ? '/admin' : '/dashboard/profile'} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Mi Perfil</a>
-              <hr className="my-1 border-gray-100" />
-              <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Cerrar Sesión</button>
+            <div className="absolute right-0 top-full z-50 mt-1 w-52 border border-[var(--siu-border)] bg-white py-1 shadow-lg">
+              <Link
+                to={role === 'admin' ? '/admin/settings' : role === 'professor' ? '/professor/settings' : '/dashboard/profile'}
+                className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-[var(--siu-blue-soft)]"
+                onClick={() => setShowMenu(false)}
+              >
+                {role === 'admin'
+                  ? 'Parámetros y contraseña'
+                  : role === 'professor'
+                    ? 'Seguridad y contraseña'
+                    : 'Mis datos personales'}
+              </Link>
+              <hr className="my-1 border-[var(--siu-border-light)]" />
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="block w-full px-4 py-2.5 text-left text-sm font-semibold text-red-700 hover:bg-red-50"
+              >
+                Cerrar sesión
+              </button>
             </div>
           )}
         </div>

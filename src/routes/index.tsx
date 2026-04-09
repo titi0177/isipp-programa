@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
+import { homePathForRole } from '@/lib/roles'
 
 export const Route = createFileRoute('/')({
   beforeLoad: async () => {
@@ -7,13 +8,12 @@ export const Route = createFileRoute('/')({
     if (!user) throw redirect({ to: '/login' })
 
     const { data: profile } = await supabase
-      .from('users')
+      .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single()
 
-    if (profile?.role === 'admin') throw redirect({ to: '/admin' })
-    throw redirect({ to: '/dashboard' })
+    throw redirect({ to: homePathForRole(profile?.role) })
   },
   component: () => null,
 })

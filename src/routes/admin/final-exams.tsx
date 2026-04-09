@@ -57,8 +57,6 @@ function FinalExamsPage() {
         return
       }
 
-      console.log("EXAMS LOADED:", examsData)
-
       setExams(examsData || [])
       setSubjects(subjectsData || [])
       setProfessors(professorsData || [])
@@ -71,19 +69,25 @@ function FinalExamsPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const { id, created_at, subject, professor, ...data } = editing
+    const { id, created_at, subject, professor, date, exam_date, ...rest } = editing
+    const when = exam_date ?? date
+    const payload: Record<string, unknown> = {
+      ...rest,
+      exam_date: when,
+    }
+    delete payload.date
 
     let res
 
     if (id) {
       res = await supabase
         .from('final_exams')
-        .update(data)
+        .update(payload)
         .eq('id', id)
     } else {
       res = await supabase
         .from('final_exams')
-        .insert(data)
+        .insert(payload)
     }
 
     if (res.error) {
@@ -150,10 +154,10 @@ function FinalExamsPage() {
           {
             key: 'exam_date',
             label: 'Fecha',
-            render: (r: any) =>
-              r.exam_date
-                ? new Date(r.exam_date).toLocaleDateString('es-AR')
-                : '-'
+            render: (r: any) => {
+              const d = r.exam_date ?? r.date
+              return d ? new Date(d).toLocaleDateString('es-AR') : '-'
+            }
           },
           {
             key: 'professor',
@@ -174,7 +178,7 @@ function FinalExamsPage() {
                 setEditing(row)
                 setModalOpen(true)
               }}
-              className="p-1.5 text-gray-500 hover:text-[#7A1E2C] hover:bg-red-50 rounded-lg"
+              className="siu-table-action"
             >
               <Pencil size={15} />
             </button>
@@ -228,11 +232,12 @@ function FinalExamsPage() {
                 type="date"
                 className="form-input"
                 required
-                value={editing.exam_date || ''}
+                value={editing.date ?? editing.exam_date ?? ''}
                 onChange={e =>
                   setEditing((p: any) => ({
                     ...p,
-                    exam_date: e.target.value
+                    date: e.target.value,
+                    exam_date: e.target.value,
                   }))
                 }
               />

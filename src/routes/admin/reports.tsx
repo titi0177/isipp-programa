@@ -50,7 +50,7 @@ function ReportsPage() {
         datasets: [{
           label: 'Promedio de notas',
           data: avgs,
-          backgroundColor: '#7A1E2C',
+          backgroundColor: '#582c31',
           borderRadius: 4,
         }],
       })
@@ -71,8 +71,8 @@ function ReportsPage() {
         datasets: [{
           label: '% Aprobados',
           data: rates,
-          borderColor: '#7A1E2C',
-          backgroundColor: 'rgba(122,30,44,0.1)',
+          borderColor: '#582c31',
+          backgroundColor: 'rgba(88,44,49,0.12)',
           fill: true,
           tension: 0.4,
         }],

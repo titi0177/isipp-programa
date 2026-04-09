@@ -1,92 +1,329 @@
 @import "tailwindcss" source("../");
 
+/* --- Identidad ISIPP: blanco + bordó institucional (logo) --- */
 :root {
-  --color-bordeaux: #7A1E2C;
-  --color-bordeaux-dark: #4A0F18;
-  --color-bordeaux-light: #9B2535;
-  --color-bg: #F4F4F4;
+  /* Bordó principal ~logo; variaciones para UI */
+  --isipp-bordo: #582c31;
+  --isipp-bordo-dark: #3d1f22;
+  --isipp-bordo-deep: #2c1518;
+  --isipp-bordo-mid: #6e3d44;
+  --isipp-bordo-soft: #f3ecec;
+  --isipp-bordo-muted: #e8dedf;
+  --isipp-white: #ffffff;
+  /* Alias usados en el resto del CSS (misma familia cromática) */
+  --siu-navy: var(--isipp-bordo-dark);
+  --siu-navy-dark: var(--isipp-bordo-deep);
+  --siu-blue: var(--isipp-bordo);
+  --siu-blue-mid: var(--isipp-bordo-mid);
+  --siu-blue-soft: var(--isipp-bordo-soft);
+  /* Acento en cabeceras: línea clara sobre bordó (paleta logo: blanco) */
+  --siu-gold: var(--isipp-white);
+  --siu-gold-soft: #f5ebe9;
+  --siu-border: #d1c4c6;
+  --siu-border-light: #e8e2e3;
+  --siu-text: #1c1917;
+  --siu-text-muted: #57534e;
+  --siu-page-bg: #f2f0f0;
+  --siu-panel: #ffffff;
+  --siu-sidebar-bg: #fafafa;
+  --siu-row-zebra: #f7f5f5;
+  --siu-institutional: var(--isipp-bordo);
+}
+
+@layer base {
+  html {
+    font-family: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
 }
 
 body {
-  @apply m-0 bg-[#F4F4F4];
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  @apply m-0 antialiased text-slate-800;
+  background: var(--siu-page-bg);
+  color: var(--siu-text);
 }
 
+/* --- Barra lateral (menú tipo Guaraní) --- */
 .sidebar {
-  @apply bg-[#4A0F18] text-white h-screen w-64 fixed left-0 top-0 overflow-y-auto flex flex-col z-40;
+  @apply h-screen w-64 fixed left-0 top-0 z-40 flex flex-col overflow-y-auto border-r shadow-sm;
+  background: var(--siu-sidebar-bg);
+  border-color: var(--siu-border);
+}
+
+.siu-sidebar-brand {
+  background: linear-gradient(180deg, var(--isipp-bordo) 0%, var(--isipp-bordo-deep) 100%);
+  @apply border-b px-4 py-4 text-white;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 -3px 0 var(--isipp-white);
+}
+
+.siu-sidebar-brand-sub {
+  @apply text-[11px] uppercase tracking-[0.12em] text-white/70 mt-1 font-semibold;
+}
+
+.siu-sidebar-section-label {
+  @apply px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider;
+  color: var(--siu-text-muted);
+  background: rgba(88, 44, 49, 0.06);
+  border-bottom: 1px solid var(--siu-border-light);
 }
 
 .sidebar-link {
-  @apply flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:bg-[#7A1E2C] hover:text-white transition-colors rounded-md mx-2;
+  @apply mx-2 flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors;
+  color: var(--siu-blue);
+}
+
+.sidebar-link:hover {
+  background: rgba(88, 44, 49, 0.08);
+  color: var(--isipp-bordo-dark);
 }
 
 .sidebar-link.active {
-  @apply bg-[#7A1E2C] text-white;
+  @apply relative font-semibold;
+  background: var(--siu-panel);
+  color: var(--isipp-bordo-dark);
+  box-shadow: inset 4px 0 0 var(--isipp-bordo), 0 1px 2px rgba(44, 21, 24, 0.06);
+  border: 1px solid var(--siu-border-light);
 }
 
+.sidebar-link svg {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+/* --- Botones --- */
 .btn-primary {
-  @apply bg-[#7A1E2C] hover:bg-[#4A0F18] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors;
+  @apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  background: var(--siu-blue);
+  color: white;
+  border-radius: 2px;
+  border: 1px solid var(--isipp-bordo-deep);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--siu-navy);
 }
 
 .btn-secondary {
-  @apply bg-white hover:bg-gray-50 text-[#7A1E2C] border border-[#7A1E2C] px-4 py-2 rounded-lg text-sm font-medium transition-colors;
+  @apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold transition-colors;
+  background: var(--siu-panel);
+  color: var(--siu-navy);
+  border-radius: 2px;
+  border: 1px solid var(--siu-border);
 }
 
+.btn-secondary:hover {
+  background: var(--siu-blue-soft);
+}
+
+/* --- Paneles y tarjetas --- */
 .card {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+  @apply border p-5 shadow-sm;
+  background: var(--siu-panel);
+  border-color: var(--siu-border);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(44, 21, 24, 0.06);
 }
 
+.siu-page-title {
+  @apply text-xl font-bold tracking-tight;
+  color: var(--siu-navy);
+}
+
+.siu-page-subtitle {
+  @apply text-sm mt-0.5;
+  color: var(--siu-text-muted);
+}
+
+.siu-panel-header {
+  @apply -mx-5 -mt-5 mb-4 flex items-center border-b px-5 py-3 text-sm font-bold uppercase tracking-wide;
+  background: linear-gradient(180deg, var(--isipp-bordo-soft) 0%, var(--isipp-bordo-muted) 100%);
+  border-color: var(--siu-border);
+  color: var(--isipp-bordo-dark);
+  border-radius: 2px 2px 0 0;
+}
+
+/* --- Tablas estilo grilla --- */
 .table-header {
-  @apply bg-[#7A1E2C] text-white;
+  background: linear-gradient(180deg, var(--isipp-bordo) 0%, var(--isipp-bordo-dark) 100%);
+  @apply text-white;
 }
 
-.badge-promoted { @apply bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium; }
-.badge-regular { @apply bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium; }
-.badge-inprogress { @apply bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium; }
-.badge-free { @apply bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium; }
-.badge-failed { @apply bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium; }
-.badge-passed { @apply bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs font-medium; }
+.table-header th {
+  @apply font-semibold;
+  border-bottom: 2px solid var(--isipp-white);
+}
 
+.siu-table tbody tr:nth-child(even) {
+  background: var(--siu-row-zebra);
+}
+
+.siu-table tbody tr:hover td {
+  background: rgba(88, 44, 49, 0.06);
+}
+
+/* --- Formularios --- */
 .form-input {
-  @apply w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7A1E2C] focus:border-transparent;
+  @apply w-full px-3 py-2 text-sm transition-shadow;
+  border: 1px solid var(--siu-border);
+  border-radius: 2px;
+  background: #fafbfc;
+  color: var(--siu-text);
+}
+
+.form-input:focus {
+  @apply outline-none ring-2 ring-offset-0;
+  border-color: var(--isipp-bordo);
+  --tw-ring-color: rgba(88, 44, 49, 0.22);
+  background: white;
 }
 
 .form-label {
-  @apply block text-sm font-medium text-gray-700 mb-1;
+  @apply mb-1 block text-xs font-bold uppercase tracking-wide;
+  color: var(--isipp-bordo-dark);
 }
 
+/* --- Modal --- */
 .modal-overlay {
-  @apply fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4;
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+  background: rgba(44, 21, 24, 0.48);
 }
 
 .modal-content {
-  @apply bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto;
-}
-.btn-primary{
-background:#7A1E2C;
-color:white;
-padding:8px 14px;
-border-radius:6px;
-font-size:14px;
-font-weight:500;
+  @apply w-full max-h-[90vh] overflow-y-auto border shadow-xl;
+  background: var(--siu-panel);
+  border-color: var(--siu-border);
+  border-radius: 2px;
+  box-shadow: 0 12px 40px rgba(44, 21, 24, 0.18);
 }
 
-.btn-primary:hover{
-opacity:0.9;
+.siu-modal-head {
+  @apply flex items-center justify-between border-b px-5 py-3;
+  background: linear-gradient(180deg, var(--isipp-bordo) 0%, var(--isipp-bordo-deep) 100%);
+  border-color: var(--isipp-bordo-deep);
+  color: white;
 }
 
-.btn-secondary{
-background:#f3f4f6;
-color:#111827;
-padding:8px 14px;
-border-radius:6px;
-font-size:14px;
+.siu-modal-head h2 {
+  @apply text-base font-bold tracking-tight;
 }
 
-.btn-secondary:hover{
-background:#e5e7eb;
+/* --- Badges de estado --- */
+.badge-promoted {
+  @apply rounded-sm px-2 py-0.5 text-xs font-semibold;
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+.badge-regular {
+  @apply rounded-sm px-2 py-0.5 text-xs font-semibold;
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+.badge-inprogress {
+  @apply rounded-sm px-2 py-0.5 text-xs font-semibold;
+  background: var(--siu-gold-soft);
+  color: var(--isipp-bordo-dark);
+  border: 1px solid var(--siu-border);
+}
+.badge-free {
+  @apply rounded-sm px-2 py-0.5 text-xs font-semibold;
+  background: #f3e8ff;
+  color: #6b21a8;
+  border: 1px solid #d8b4fe;
+}
+.badge-failed {
+  @apply rounded-sm px-2 py-0.5 text-xs font-semibold;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+.badge-passed {
+  @apply rounded-sm px-2 py-0.5 text-xs font-semibold;
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+/* --- Login / páginas públicas --- */
+.siu-login-page {
+  min-height: 100vh;
+  background: linear-gradient(165deg, var(--siu-page-bg) 0%, #e5dedf 50%, var(--isipp-bordo-soft) 100%);
+}
+
+.siu-login-card {
+  @apply overflow-hidden border shadow-2xl;
+  border-color: var(--siu-border);
+  border-radius: 2px;
+  box-shadow: 0 20px 50px rgba(44, 21, 24, 0.14);
+}
+
+.siu-login-banner {
+  @apply px-6 py-5 text-center text-white;
+  background: linear-gradient(180deg, var(--isipp-bordo) 0%, var(--isipp-bordo-deep) 100%);
+  border-bottom: 4px solid var(--isipp-white);
+}
+
+.siu-login-logo-wrap {
+  @apply mx-auto mb-3 flex max-w-[280px] items-center justify-center bg-white p-4;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 2px;
+}
+
+.siu-login-logo {
+  @apply h-auto w-full max-h-[120px] object-contain;
+}
+
+.siu-login-badge {
+  @apply mx-auto mb-3 flex h-16 w-16 items-center justify-center border-2 bg-white;
+  border-color: var(--isipp-white);
+  border-radius: 2px;
+}
+
+/* --- Utilidad: contenedor principal --- */
+.siu-main-bg {
+  background: var(--siu-page-bg);
+}
+
+/* --- Barra superior (cabecera institucional) --- */
+.siu-topnav {
+  @apply sticky top-0 z-30 flex min-h-[52px] shrink-0 items-center justify-between gap-4 px-4 py-2 text-white shadow-md sm:px-5;
+  background: linear-gradient(180deg, var(--isipp-bordo) 0%, var(--isipp-bordo-deep) 100%);
+  border-bottom: 3px solid var(--isipp-white);
+}
+
+.siu-topnav-logo {
+  @apply hidden h-10 w-auto shrink-0 bg-white object-contain p-1 sm:block sm:h-11;
+  border-radius: 2px;
+  max-width: 140px;
+}
+
+.siu-topnav-title {
+  @apply text-base font-bold tracking-tight;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.siu-topnav-muted {
+  @apply text-xs font-medium text-white/80;
+}
+
+/* Botón ícono en grillas (editar / eliminar) */
+.siu-table-action {
+  @apply rounded-sm p-1.5 text-slate-500 transition-colors hover:bg-[var(--isipp-bordo-soft)] hover:text-[var(--isipp-bordo-dark)];
+}
+
+.siu-band-header {
+  background: linear-gradient(180deg, var(--isipp-bordo) 0%, var(--isipp-bordo-deep) 100%);
+  @apply px-4 py-2;
+  border-bottom: 2px solid var(--isipp-white);
+}
+
+.siu-sidebar-logo-box {
+  @apply rounded-sm bg-white p-3 shadow-sm;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.siu-sidebar-logo {
+  @apply mx-auto block h-auto max-h-[100px] w-full object-contain object-center;
 }

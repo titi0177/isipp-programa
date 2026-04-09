@@ -119,7 +119,7 @@ function ProgramsPage() {
                 setEditing(row)
                 setModalOpen(true)
               }}
-              className="p-1.5 text-gray-500 hover:text-[#7A1E2C] hover:bg-red-50 rounded-lg"
+              className="siu-table-action"
             >
               <Pencil size={15} />
             </button>

@@ -1,4 +1,7 @@
-export type Role = 'admin' | 'student'
+import type { DbRole } from '@/lib/roles'
+
+/** Rol en base de datos (`profiles.role`). */
+export type Role = DbRole
 
 export interface UserProfile {
   id: string
@@ -10,7 +13,7 @@ export interface UserProfile {
 
 export interface Student {
   id: string
-  user_id?: string
+  user_id?: string | null
   first_name: string
   last_name: string
   dni: string
@@ -37,6 +40,7 @@ export interface Professor {
   email: string
   department: string
   created_at: string
+  user_id?: string | null
 }
 
 export interface Subject {
@@ -84,7 +88,9 @@ export interface Attendance {
 export interface FinalExam {
   id: string
   subject_id: string
-  date: string
+  exam_date: string
+  /** @deprecated Algunas bases antiguas; preferir exam_date */
+  date?: string
   professor_id?: string
   location: string
   created_at: string

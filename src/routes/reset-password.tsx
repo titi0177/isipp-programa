@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { GraduationCap } from 'lucide-react'
 
 export const Route = createFileRoute('/reset-password')({
   component: ResetPasswordPage,
@@ -19,40 +18,66 @@ function ResetPasswordPage() {
     if (password !== confirm) { setError('Las contraseñas no coinciden.'); return }
     setLoading(true)
     const { error: err } = await supabase.auth.updateUser({ password })
-    if (err) setError('Error al actualizar contraseña.')
+    if (err) setError('No se pudo actualizar la contraseña. Intente nuevamente.')
     else setDone(true)
     setLoading(false)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#4A0F18] via-[#7A1E2C] to-[#9B2535] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <div className="bg-[#7A1E2C] px-8 py-6 text-center">
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <GraduationCap size={28} className="text-[#7A1E2C]" />
+    <div className="siu-login-page flex items-center justify-center p-4">
+      <div className="siu-login-card w-full max-w-md bg-white">
+        <div className="siu-login-banner py-5">
+          <div className="siu-login-logo-wrap max-w-[200px] py-3">
+            <img
+              src="/logo-isipp.png"
+              alt=""
+              className="siu-login-logo max-h-[72px]"
+              width={200}
+              height={100}
+            />
           </div>
-          <h1 className="text-xl font-bold text-white">ISIPP</h1>
-          <p className="text-white/70 text-sm">Restablecer Contraseña</p>
+          <h1 className="text-base font-bold">Nueva contraseña</h1>
+          <p className="mt-1 text-xs text-white/85">Instituto Superior de Informática Puerto Piray</p>
         </div>
         <div className="p-8">
           {done ? (
             <div className="text-center">
-              <p className="text-green-600 font-medium mb-4">✓ Contraseña actualizada exitosamente.</p>
-              <a href="/login" className="btn-primary inline-block">Ir al Inicio de Sesión</a>
+              <p className="mb-4 font-semibold text-emerald-700">Contraseña actualizada correctamente.</p>
+              <a href="/login" className="btn-primary inline-block px-6">Ir al inicio de sesión</a>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {error && <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+              {error && (
+                <div className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" style={{ borderRadius: '2px' }}>
+                  {error}
+                </div>
+              )}
               <div>
-                <label className="form-label">Nueva Contraseña</label>
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="form-input" placeholder="••••••••" />
+                <label className="form-label" htmlFor="np">Nueva contraseña</label>
+                <input
+                  id="np"
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  className="form-input"
+                  placeholder="••••••••"
+                />
               </div>
               <div>
-                <label className="form-label">Confirmar Contraseña</label>
-                <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required className="form-input" placeholder="••••••••" />
+                <label className="form-label" htmlFor="npc">Confirmar</label>
+                <input
+                  id="npc"
+                  type="password"
+                  value={confirm}
+                  onChange={e => setConfirm(e.target.value)}
+                  required
+                  className="form-input"
+                  placeholder="••••••••"
+                />
               </div>
-              <button type="submit" disabled={loading} className="btn-primary w-full py-3">
-                {loading ? 'Guardando...' : 'Actualizar Contraseña'}
+              <button type="submit" disabled={loading} className="btn-primary w-full py-3 font-bold">
+                {loading ? 'Guardando…' : 'Guardar contraseña'}
               </button>
             </form>
           )}

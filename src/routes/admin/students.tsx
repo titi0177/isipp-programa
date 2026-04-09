@@ -7,6 +7,7 @@ import { useToast } from '@/components/Toast'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import type { Student, Program } from '@/types'
 import { Link } from '@tanstack/react-router'
+import { provisionStudentWithAuth } from '@/server/provisionAuthUsers'
 
 export const Route = createFileRoute('/admin/students')({
   component: StudentsPage,
@@ -20,9 +21,13 @@ function StudentsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Partial<Student>>(EMPTY)
   const [loading, setLoading] = useState(true)
+  const [createWithAuth, setCreateWithAuth] = useState(true)
+  const [saving, setSaving] = useState(false)
   const { showToast } = useToast()
 
-  useEffect(() => { loadData() }, [])
+  useEffect(() => {
+    void loadData()
+  }, [])
 
   async function loadData() {
     const [{ data: s }, { data: p }] = await Promise.all([
@@ -34,30 +39,87 @@ function StudentsPage() {
     setLoading(false)
   }
 
-  const openNew = () => { setEditing(EMPTY); setModalOpen(true) }
-  const openEdit = (s: Student) => { setEditing(s); setModalOpen(true) }
+  const openNew = () => {
+    setEditing(EMPTY)
+    setCreateWithAuth(true)
+    setModalOpen(true)
+  }
+  const openEdit = (s: Student) => {
+    setEditing(s)
+    setModalOpen(true)
+  }
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    const { id, program, ...data } = editing as any
+    const { id, program, ...rest } = editing as any
+
     if (id) {
-      const { error } = await supabase.from('students').update(data).eq('id', id)
-      if (error) { showToast('Error al actualizar.', 'error'); return }
+      const { error } = await supabase.from('students').update(rest).eq('id', id)
+      if (error) {
+        showToast('Error al actualizar.', 'error')
+        return
+      }
       showToast('Estudiante actualizado.')
-    } else {
-      const { error } = await supabase.from('students').insert(data)
-      if (error) { showToast('Error al crear estudiante.', 'error'); return }
-      showToast('Estudiante creado.')
+      setModalOpen(false)
+      void loadData()
+      return
     }
+
+    if (createWithAuth) {
+      setSaving(true)
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData.session?.access_token
+      if (!token) {
+        showToast('Sesión expirada. Volvé a iniciar sesión.', 'error')
+        setSaving(false)
+        return
+      }
+
+      const res = await provisionStudentWithAuth({
+        data: {
+          accessToken: token,
+          email: rest.email,
+          dni: rest.dni,
+          first_name: rest.first_name,
+          last_name: rest.last_name,
+          legajo: rest.legajo,
+          program_id: rest.program_id || undefined,
+          year: rest.year ?? 1,
+          status: rest.status ?? 'active',
+        },
+      })
+
+      setSaving(false)
+
+      if (!res.ok) {
+        showToast(res.message, 'error')
+        return
+      }
+
+      showToast(
+        'Estudiante creado con acceso al portal. Usuario: correo · Contraseña inicial: DNI (solo números, mín. 6 dígitos).',
+        'info',
+      )
+      setModalOpen(false)
+      void loadData()
+      return
+    }
+
+    const { error } = await supabase.from('students').insert(rest)
+    if (error) {
+      showToast('Error al crear estudiante.', 'error')
+      return
+    }
+    showToast('Estudiante creado (sin cuenta de acceso).')
     setModalOpen(false)
-    loadData()
+    void loadData()
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Eliminar este estudiante?')) return
     await supabase.from('students').delete().eq('id', id)
     showToast('Estudiante eliminado.', 'info')
-    loadData()
+    void loadData()
   }
 
   const columns = [
@@ -66,6 +128,16 @@ function StudentsPage() {
     { key: 'legajo', label: 'Legajo' },
     { key: 'dni', label: 'DNI' },
     { key: 'email', label: 'Email' },
+    {
+      key: 'user_id',
+      label: 'Portal',
+      render: (r: any) =>
+        r.user_id ? (
+          <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">Activo</span>
+        ) : (
+          <span className="text-xs text-slate-400">Sin cuenta</span>
+        ),
+    },
     { key: 'program', label: 'Carrera', render: (r: any) => r.program?.name || '-' },
     { key: 'year', label: 'Año' },
     { key: 'status', label: 'Estado', render: (r: any) => <span className="capitalize">{r.status}</span> },
@@ -76,31 +148,33 @@ function StudentsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Estudiantes</h1>
-          <p className="text-gray-500 text-sm mt-1">Gestión del padrón de alumnos</p>
+          <p className="mt-1 text-sm text-gray-500">Gestión del padrón de alumnos</p>
         </div>
-        <button onClick={openNew} className="btn-primary flex items-center gap-2">
-          <Plus size={16} /> Nuevo Estudiante
+        <button type="button" onClick={openNew} className="btn-primary flex items-center gap-2">
+          <Plus size={16} /> Nuevo estudiante
         </button>
       </div>
 
-      {loading ? <div className="card animate-pulse h-64 bg-gray-100" /> : (
+      {loading ? (
+        <div className="card h-64 animate-pulse bg-gray-100" />
+      ) : (
         <DataTable
           columns={columns}
           data={students as any}
           searchPlaceholder="Buscar por nombre, legajo, DNI..."
           actions={(row: any) => (
-            <div className="flex items-center gap-2 justify-end">
-              <Link
-  to="/admin/student-record/$id"
-  params={{ id: row.id }}
-  className="text-blue-600"
->
-Historial
-</Link>
-              <button onClick={() => openEdit(row)} className="p-1.5 text-gray-500 hover:text-[#7A1E2C] hover:bg-red-50 rounded-lg transition-colors">
+            <div className="flex items-center justify-end gap-2">
+              <Link to="/admin/student-record/$id" params={{ id: row.id }} className="text-blue-600">
+                Historial
+              </Link>
+              <button type="button" onClick={() => openEdit(row)} className="siu-table-action">
                 <Pencil size={15} />
               </button>
-              <button onClick={() => handleDelete(row.id)} className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+              <button
+                type="button"
+                onClick={() => void handleDelete(row.id)}
+                className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
+              >
                 <Trash2 size={15} />
               </button>
             </div>
@@ -108,48 +182,116 @@ Historial
         />
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing.id ? 'Editar Estudiante' : 'Nuevo Estudiante'}>
-        <form onSubmit={handleSave} className="space-y-4">
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing.id ? 'Editar estudiante' : 'Nuevo estudiante'}
+      >
+        <form onSubmit={(e) => void handleSave(e)} className="space-y-4">
+          {!editing.id && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50/80 p-3 text-sm text-amber-950">
+              <label className="flex cursor-pointer items-start gap-2">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  checked={createWithAuth}
+                  onChange={(e) => setCreateWithAuth(e.target.checked)}
+                />
+                <span>
+                  <strong>Crear cuenta en Supabase Auth</strong> para el portal del alumno. Se usará el{' '}
+                  <strong>correo</strong> como usuario y el <strong>DNI (solo números)</strong> como contraseña
+                  inicial (mínimo 6 dígitos). El alumno podrá cambiarla después desde su perfil.
+                </span>
+              </label>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="form-label">Nombre *</label>
-              <input className="form-input" required value={editing.first_name || ''} onChange={e => setEditing(p => ({ ...p, first_name: e.target.value }))} />
+              <input
+                className="form-input"
+                required
+                value={editing.first_name || ''}
+                onChange={(e) => setEditing((p) => ({ ...p, first_name: e.target.value }))}
+              />
             </div>
             <div>
               <label className="form-label">Apellido *</label>
-              <input className="form-input" required value={editing.last_name || ''} onChange={e => setEditing(p => ({ ...p, last_name: e.target.value }))} />
+              <input
+                className="form-input"
+                required
+                value={editing.last_name || ''}
+                onChange={(e) => setEditing((p) => ({ ...p, last_name: e.target.value }))}
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="form-label">DNI *</label>
-              <input className="form-input" required value={editing.dni || ''} onChange={e => setEditing(p => ({ ...p, dni: e.target.value }))} />
+              <label className="form-label">DNI * {!editing.id && createWithAuth && '(contraseña inicial)'}</label>
+              <input
+                className="form-input"
+                required
+                value={editing.dni || ''}
+                onChange={(e) => setEditing((p) => ({ ...p, dni: e.target.value }))}
+                placeholder="Solo números recomendado"
+              />
             </div>
             <div>
               <label className="form-label">Legajo *</label>
-              <input className="form-input" required value={editing.legajo || ''} onChange={e => setEditing(p => ({ ...p, legajo: e.target.value }))} />
+              <input
+                className="form-input"
+                required
+                value={editing.legajo || ''}
+                onChange={(e) => setEditing((p) => ({ ...p, legajo: e.target.value }))}
+              />
             </div>
           </div>
           <div>
-            <label className="form-label">Email *</label>
-            <input type="email" className="form-input" required value={editing.email || ''} onChange={e => setEditing(p => ({ ...p, email: e.target.value }))} />
+            <label className="form-label">Correo institucional * {!editing.id && createWithAuth && '(usuario de acceso)'}</label>
+            <input
+              type="email"
+              className="form-input"
+              required
+              value={editing.email || ''}
+              onChange={(e) => setEditing((p) => ({ ...p, email: e.target.value }))}
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="form-label">Carrera</label>
-              <select className="form-input" value={editing.program_id || ''} onChange={e => setEditing(p => ({ ...p, program_id: e.target.value }))}>
+              <select
+                className="form-input"
+                value={editing.program_id || ''}
+                onChange={(e) => setEditing((p) => ({ ...p, program_id: e.target.value }))}
+              >
                 <option value="">Sin asignar</option>
-                {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                {programs.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
               <label className="form-label">Año</label>
-              <input type="number" min={1} max={6} className="form-input" value={editing.year || 1} onChange={e => setEditing(p => ({ ...p, year: +e.target.value }))} />
+              <input
+                type="number"
+                min={1}
+                max={6}
+                className="form-input"
+                value={editing.year || 1}
+                onChange={(e) => setEditing((p) => ({ ...p, year: +e.target.value }))}
+              />
             </div>
           </div>
           <div>
             <label className="form-label">Estado</label>
-            <select className="form-input" value={editing.status || 'active'} onChange={e => setEditing(p => ({ ...p, status: e.target.value as any }))}>
+            <select
+              className="form-input"
+              value={editing.status || 'active'}
+              onChange={(e) => setEditing((p) => ({ ...p, status: e.target.value as any }))}
+            >
               <option value="active">Activo</option>
               <option value="inactive">Inactivo</option>
               <option value="graduated">Egresado</option>
@@ -157,8 +299,12 @@ Historial
             </select>
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="submit" className="btn-primary flex-1">Guardar</button>
-            <button type="button" onClick={() => setModalOpen(false)} className="btn-secondary flex-1">Cancelar</button>
+            <button type="submit" className="btn-primary flex-1" disabled={saving}>
+              {saving ? 'Creando…' : 'Guardar'}
+            </button>
+            <button type="button" onClick={() => setModalOpen(false)} className="btn-secondary flex-1">
+              Cancelar
+            </button>
           </div>
         </form>
       </Modal>

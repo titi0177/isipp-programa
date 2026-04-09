@@ -10,13 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ProfessorRouteImport } from './routes/professor'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProfessorIndexRouteImport } from './routes/professor/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as ProfessorSubjectsRouteImport } from './routes/professor/subjects'
+import { Route as ProfessorSettingsRouteImport } from './routes/professor/settings'
+import { Route as ProfessorMaterialsRouteImport } from './routes/professor/materials'
+import { Route as ProfessorGradesRouteImport } from './routes/professor/grades'
+import { Route as ProfessorAttendanceRouteImport } from './routes/professor/attendance'
 import { Route as DashboardSubjectsRouteImport } from './routes/dashboard/subjects'
+import { Route as DashboardRoadmapRouteImport } from './routes/dashboard/roadmap'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard/profile'
 import { Route as DashboardHistoryRouteImport } from './routes/dashboard/history'
 import { Route as DashboardExamsRouteImport } from './routes/dashboard/exams'
@@ -30,6 +38,7 @@ import { Route as AdminProgramsRouteImport } from './routes/admin/programs'
 import { Route as AdminProfessorsRouteImport } from './routes/admin/professors'
 import { Route as AdminGradesRouteImport } from './routes/admin/grades'
 import { Route as AdminFinalExamsRouteImport } from './routes/admin/final-exams'
+import { Route as AdminExamRecordsRouteImport } from './routes/admin/exam-records'
 import { Route as AdminEnrollmentsRouteImport } from './routes/admin/enrollments'
 import { Route as AdminCorrelativesRouteImport } from './routes/admin/correlatives'
 import { Route as AdminCalendarRouteImport } from './routes/admin/calendar'
@@ -40,6 +49,11 @@ import { Route as AdminStudentRecordIdRouteImport } from './routes/admin/student
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfessorRoute = ProfessorRouteImport.update({
+  id: '/professor',
+  path: '/professor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -62,6 +76,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfessorIndexRoute = ProfessorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProfessorRoute,
+} as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -72,9 +91,39 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const ProfessorSubjectsRoute = ProfessorSubjectsRouteImport.update({
+  id: '/subjects',
+  path: '/subjects',
+  getParentRoute: () => ProfessorRoute,
+} as any)
+const ProfessorSettingsRoute = ProfessorSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => ProfessorRoute,
+} as any)
+const ProfessorMaterialsRoute = ProfessorMaterialsRouteImport.update({
+  id: '/materials',
+  path: '/materials',
+  getParentRoute: () => ProfessorRoute,
+} as any)
+const ProfessorGradesRoute = ProfessorGradesRouteImport.update({
+  id: '/grades',
+  path: '/grades',
+  getParentRoute: () => ProfessorRoute,
+} as any)
+const ProfessorAttendanceRoute = ProfessorAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => ProfessorRoute,
+} as any)
 const DashboardSubjectsRoute = DashboardSubjectsRouteImport.update({
   id: '/subjects',
   path: '/subjects',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardRoadmapRoute = DashboardRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardProfileRoute = DashboardProfileRouteImport.update({
@@ -142,6 +191,11 @@ const AdminFinalExamsRoute = AdminFinalExamsRouteImport.update({
   path: '/final-exams',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminExamRecordsRoute = AdminExamRecordsRouteImport.update({
+  id: '/exam-records',
+  path: '/exam-records',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminEnrollmentsRoute = AdminEnrollmentsRouteImport.update({
   id: '/enrollments',
   path: '/enrollments',
@@ -178,12 +232,14 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/professor': typeof ProfessorRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/attendance': typeof AdminAttendanceRoute
   '/admin/calendar': typeof AdminCalendarRoute
   '/admin/correlatives': typeof AdminCorrelativesRoute
   '/admin/enrollments': typeof AdminEnrollmentsRoute
+  '/admin/exam-records': typeof AdminExamRecordsRoute
   '/admin/final-exams': typeof AdminFinalExamsRoute
   '/admin/grades': typeof AdminGradesRoute
   '/admin/professors': typeof AdminProfessorsRoute
@@ -197,9 +253,16 @@ export interface FileRoutesByFullPath {
   '/dashboard/exams': typeof DashboardExamsRoute
   '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/roadmap': typeof DashboardRoadmapRoute
   '/dashboard/subjects': typeof DashboardSubjectsRoute
+  '/professor/attendance': typeof ProfessorAttendanceRoute
+  '/professor/grades': typeof ProfessorGradesRoute
+  '/professor/materials': typeof ProfessorMaterialsRoute
+  '/professor/settings': typeof ProfessorSettingsRoute
+  '/professor/subjects': typeof ProfessorSubjectsRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/professor/': typeof ProfessorIndexRoute
   '/admin/student-record/$id': typeof AdminStudentRecordIdRoute
 }
 export interface FileRoutesByTo {
@@ -211,6 +274,7 @@ export interface FileRoutesByTo {
   '/admin/calendar': typeof AdminCalendarRoute
   '/admin/correlatives': typeof AdminCorrelativesRoute
   '/admin/enrollments': typeof AdminEnrollmentsRoute
+  '/admin/exam-records': typeof AdminExamRecordsRoute
   '/admin/final-exams': typeof AdminFinalExamsRoute
   '/admin/grades': typeof AdminGradesRoute
   '/admin/professors': typeof AdminProfessorsRoute
@@ -224,9 +288,16 @@ export interface FileRoutesByTo {
   '/dashboard/exams': typeof DashboardExamsRoute
   '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/roadmap': typeof DashboardRoadmapRoute
   '/dashboard/subjects': typeof DashboardSubjectsRoute
+  '/professor/attendance': typeof ProfessorAttendanceRoute
+  '/professor/grades': typeof ProfessorGradesRoute
+  '/professor/materials': typeof ProfessorMaterialsRoute
+  '/professor/settings': typeof ProfessorSettingsRoute
+  '/professor/subjects': typeof ProfessorSubjectsRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/professor': typeof ProfessorIndexRoute
   '/admin/student-record/$id': typeof AdminStudentRecordIdRoute
 }
 export interface FileRoutesById {
@@ -235,12 +306,14 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/professor': typeof ProfessorRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/attendance': typeof AdminAttendanceRoute
   '/admin/calendar': typeof AdminCalendarRoute
   '/admin/correlatives': typeof AdminCorrelativesRoute
   '/admin/enrollments': typeof AdminEnrollmentsRoute
+  '/admin/exam-records': typeof AdminExamRecordsRoute
   '/admin/final-exams': typeof AdminFinalExamsRoute
   '/admin/grades': typeof AdminGradesRoute
   '/admin/professors': typeof AdminProfessorsRoute
@@ -254,9 +327,16 @@ export interface FileRoutesById {
   '/dashboard/exams': typeof DashboardExamsRoute
   '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/roadmap': typeof DashboardRoadmapRoute
   '/dashboard/subjects': typeof DashboardSubjectsRoute
+  '/professor/attendance': typeof ProfessorAttendanceRoute
+  '/professor/grades': typeof ProfessorGradesRoute
+  '/professor/materials': typeof ProfessorMaterialsRoute
+  '/professor/settings': typeof ProfessorSettingsRoute
+  '/professor/subjects': typeof ProfessorSubjectsRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/professor/': typeof ProfessorIndexRoute
   '/admin/student-record/$id': typeof AdminStudentRecordIdRoute
 }
 export interface FileRouteTypes {
@@ -266,12 +346,14 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/login'
+    | '/professor'
     | '/reset-password'
     | '/admin/announcements'
     | '/admin/attendance'
     | '/admin/calendar'
     | '/admin/correlatives'
     | '/admin/enrollments'
+    | '/admin/exam-records'
     | '/admin/final-exams'
     | '/admin/grades'
     | '/admin/professors'
@@ -285,9 +367,16 @@ export interface FileRouteTypes {
     | '/dashboard/exams'
     | '/dashboard/history'
     | '/dashboard/profile'
+    | '/dashboard/roadmap'
     | '/dashboard/subjects'
+    | '/professor/attendance'
+    | '/professor/grades'
+    | '/professor/materials'
+    | '/professor/settings'
+    | '/professor/subjects'
     | '/admin/'
     | '/dashboard/'
+    | '/professor/'
     | '/admin/student-record/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -299,6 +388,7 @@ export interface FileRouteTypes {
     | '/admin/calendar'
     | '/admin/correlatives'
     | '/admin/enrollments'
+    | '/admin/exam-records'
     | '/admin/final-exams'
     | '/admin/grades'
     | '/admin/professors'
@@ -312,9 +402,16 @@ export interface FileRouteTypes {
     | '/dashboard/exams'
     | '/dashboard/history'
     | '/dashboard/profile'
+    | '/dashboard/roadmap'
     | '/dashboard/subjects'
+    | '/professor/attendance'
+    | '/professor/grades'
+    | '/professor/materials'
+    | '/professor/settings'
+    | '/professor/subjects'
     | '/admin'
     | '/dashboard'
+    | '/professor'
     | '/admin/student-record/$id'
   id:
     | '__root__'
@@ -322,12 +419,14 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/login'
+    | '/professor'
     | '/reset-password'
     | '/admin/announcements'
     | '/admin/attendance'
     | '/admin/calendar'
     | '/admin/correlatives'
     | '/admin/enrollments'
+    | '/admin/exam-records'
     | '/admin/final-exams'
     | '/admin/grades'
     | '/admin/professors'
@@ -341,9 +440,16 @@ export interface FileRouteTypes {
     | '/dashboard/exams'
     | '/dashboard/history'
     | '/dashboard/profile'
+    | '/dashboard/roadmap'
     | '/dashboard/subjects'
+    | '/professor/attendance'
+    | '/professor/grades'
+    | '/professor/materials'
+    | '/professor/settings'
+    | '/professor/subjects'
     | '/admin/'
     | '/dashboard/'
+    | '/professor/'
     | '/admin/student-record/$id'
   fileRoutesById: FileRoutesById
 }
@@ -352,6 +458,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ProfessorRoute: typeof ProfessorRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
@@ -362,6 +469,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/professor': {
+      id: '/professor'
+      path: '/professor'
+      fullPath: '/professor'
+      preLoaderRoute: typeof ProfessorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -392,6 +506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/professor/': {
+      id: '/professor/'
+      path: '/'
+      fullPath: '/professor/'
+      preLoaderRoute: typeof ProfessorIndexRouteImport
+      parentRoute: typeof ProfessorRoute
+    }
     '/dashboard/': {
       id: '/dashboard/'
       path: '/'
@@ -406,11 +527,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/professor/subjects': {
+      id: '/professor/subjects'
+      path: '/subjects'
+      fullPath: '/professor/subjects'
+      preLoaderRoute: typeof ProfessorSubjectsRouteImport
+      parentRoute: typeof ProfessorRoute
+    }
+    '/professor/settings': {
+      id: '/professor/settings'
+      path: '/settings'
+      fullPath: '/professor/settings'
+      preLoaderRoute: typeof ProfessorSettingsRouteImport
+      parentRoute: typeof ProfessorRoute
+    }
+    '/professor/materials': {
+      id: '/professor/materials'
+      path: '/materials'
+      fullPath: '/professor/materials'
+      preLoaderRoute: typeof ProfessorMaterialsRouteImport
+      parentRoute: typeof ProfessorRoute
+    }
+    '/professor/grades': {
+      id: '/professor/grades'
+      path: '/grades'
+      fullPath: '/professor/grades'
+      preLoaderRoute: typeof ProfessorGradesRouteImport
+      parentRoute: typeof ProfessorRoute
+    }
+    '/professor/attendance': {
+      id: '/professor/attendance'
+      path: '/attendance'
+      fullPath: '/professor/attendance'
+      preLoaderRoute: typeof ProfessorAttendanceRouteImport
+      parentRoute: typeof ProfessorRoute
+    }
     '/dashboard/subjects': {
       id: '/dashboard/subjects'
       path: '/subjects'
       fullPath: '/dashboard/subjects'
       preLoaderRoute: typeof DashboardSubjectsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/roadmap': {
+      id: '/dashboard/roadmap'
+      path: '/roadmap'
+      fullPath: '/dashboard/roadmap'
+      preLoaderRoute: typeof DashboardRoadmapRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/profile': {
@@ -504,6 +667,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFinalExamsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/exam-records': {
+      id: '/admin/exam-records'
+      path: '/exam-records'
+      fullPath: '/admin/exam-records'
+      preLoaderRoute: typeof AdminExamRecordsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/enrollments': {
       id: '/admin/enrollments'
       path: '/enrollments'
@@ -555,6 +725,7 @@ interface AdminRouteChildren {
   AdminCalendarRoute: typeof AdminCalendarRoute
   AdminCorrelativesRoute: typeof AdminCorrelativesRoute
   AdminEnrollmentsRoute: typeof AdminEnrollmentsRoute
+  AdminExamRecordsRoute: typeof AdminExamRecordsRoute
   AdminFinalExamsRoute: typeof AdminFinalExamsRoute
   AdminGradesRoute: typeof AdminGradesRoute
   AdminProfessorsRoute: typeof AdminProfessorsRoute
@@ -573,6 +744,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCalendarRoute: AdminCalendarRoute,
   AdminCorrelativesRoute: AdminCorrelativesRoute,
   AdminEnrollmentsRoute: AdminEnrollmentsRoute,
+  AdminExamRecordsRoute: AdminExamRecordsRoute,
   AdminFinalExamsRoute: AdminFinalExamsRoute,
   AdminGradesRoute: AdminGradesRoute,
   AdminProfessorsRoute: AdminProfessorsRoute,
@@ -593,6 +765,7 @@ interface DashboardRouteChildren {
   DashboardExamsRoute: typeof DashboardExamsRoute
   DashboardHistoryRoute: typeof DashboardHistoryRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
+  DashboardRoadmapRoute: typeof DashboardRoadmapRoute
   DashboardSubjectsRoute: typeof DashboardSubjectsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
@@ -603,6 +776,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardExamsRoute: DashboardExamsRoute,
   DashboardHistoryRoute: DashboardHistoryRoute,
   DashboardProfileRoute: DashboardProfileRoute,
+  DashboardRoadmapRoute: DashboardRoadmapRoute,
   DashboardSubjectsRoute: DashboardSubjectsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
@@ -611,11 +785,34 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
 
+interface ProfessorRouteChildren {
+  ProfessorAttendanceRoute: typeof ProfessorAttendanceRoute
+  ProfessorGradesRoute: typeof ProfessorGradesRoute
+  ProfessorMaterialsRoute: typeof ProfessorMaterialsRoute
+  ProfessorSettingsRoute: typeof ProfessorSettingsRoute
+  ProfessorSubjectsRoute: typeof ProfessorSubjectsRoute
+  ProfessorIndexRoute: typeof ProfessorIndexRoute
+}
+
+const ProfessorRouteChildren: ProfessorRouteChildren = {
+  ProfessorAttendanceRoute: ProfessorAttendanceRoute,
+  ProfessorGradesRoute: ProfessorGradesRoute,
+  ProfessorMaterialsRoute: ProfessorMaterialsRoute,
+  ProfessorSettingsRoute: ProfessorSettingsRoute,
+  ProfessorSubjectsRoute: ProfessorSubjectsRoute,
+  ProfessorIndexRoute: ProfessorIndexRoute,
+}
+
+const ProfessorRouteWithChildren = ProfessorRoute._addFileChildren(
+  ProfessorRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
+  ProfessorRoute: ProfessorRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport

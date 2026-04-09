@@ -7,7 +7,13 @@ export const Route = createRootRoute({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'ISIPP Academic System' },
+      { title: 'ISIPP Puerto Piray · Gestión académica' },
+    ],
+    links: [
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+      },
     ],
   }),
   shellComponent: RootDocument,

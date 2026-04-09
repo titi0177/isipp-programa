@@ -27,10 +27,15 @@ const { data: studentData } = await supabase
     *,
     program:programs(name)
   `)
-  .eq('auth_user_id',userData.user?.id)
+  .eq('user_id', userData.user?.id)
   .single()
 
 setStudent(studentData)
+
+if (!studentData?.id) {
+  setSubjects([])
+  return
+}
 
 const { data } = await supabase
   .from('grades')
@@ -40,18 +45,25 @@ const { data } = await supabase
       subject:subjects(name)
     )
   `)
-  .eq('enrollment.student_id',studentData.id)
+  .eq('enrollment.student_id', studentData.id)
 
 const formatted = data?.map((g:any)=>({
-  name:g.enrollment.subject.name,
+  name:g.enrollment?.subject?.name,
   final_grade:g.final_grade
-}))
+})).filter((x: any) => x.name != null)
 
 setSubjects(formatted || [])
 
 }
 
-if(!student) return null
+if (!student) {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Certificados</h1>
+      <p className="text-gray-600 text-sm">No se encontró tu ficha de estudiante. Contactá a secretaría.</p>
+    </div>
+  )
+}
 
 return(
 
@@ -64,15 +76,17 @@ return(
   <div className="bg-white p-6 rounded-lg shadow space-y-4">
 
     <button
+      type="button"
       onClick={()=>generateRegularCertificate(student,student.program)}
-      className="bg-green-600 text-white px-4 py-2 rounded"
+      className="inline-flex items-center justify-center rounded-sm border border-emerald-900 bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800"
     >
       Descargar Certificado Alumno Regular
     </button>
 
     <button
+      type="button"
       onClick={()=>generateApprovedSubjects(student,subjects)}
-      className="bg-blue-600 text-white px-4 py-2 rounded"
+      className="btn-primary px-4 py-2"
     >
       Descargar Certificado Materias Aprobadas
     </button>

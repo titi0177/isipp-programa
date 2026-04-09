@@ -4,6 +4,11 @@ import { supabase } from '@/lib/supabase'
 import { Calendar, MapPin, User } from 'lucide-react'
 import { useToast } from '@/components/Toast'
 
+/** Columna de fecha en Supabase: `exam_date` (alias legado `date` si existiera) */
+function examDateString(exam: { exam_date?: string; date?: string }) {
+  return exam.exam_date ?? exam.date ?? ''
+}
+
 export const Route = createFileRoute('/dashboard/exams')({
   component: ExamsPage,
 })
@@ -31,47 +36,50 @@ function ExamsPage() {
 
       if (!user) return
 
-      const { data: studentData } = await supabase
+      const { data: studentData, error: studentError } = await supabase
         .from('students')
         .select('*')
         .eq('user_id', user.id)
         .single()
 
-      if (!studentData) {
-        showToast({
-          type: 'error',
-          message: 'No se encontró el estudiante'
-        })
+      if (studentError || !studentData) {
+        showToast('No se encontró el estudiante', 'error')
         return
       }
 
       setStudent(studentData)
 
-      const { data: examsData } = await supabase
+      const { data: examsData, error: examsError } = await supabase
         .from('final_exams')
         .select(`
           *,
           subject:subjects(name),
           professor:professors(name)
         `)
-        .eq('is_open', true)
         .order('exam_date', { ascending: true })
 
-      setExams(examsData || [])
+      if (examsError) {
+        showToast(examsError.message, 'error')
+        setExams([])
+      } else {
+        setExams(examsData || [])
+      }
 
-      const { data: regData } = await supabase
-        .from('final_exam_registrations')
+      const { data: regData, error: regError } = await supabase
+        .from('exam_enrollments')
         .select('*')
         .eq('student_id', studentData.id)
 
-      setRegistrations(regData || [])
+      if (regError) {
+        showToast(regError.message, 'error')
+        setRegistrations([])
+      } else {
+        setRegistrations(regData || [])
+      }
 
-    } catch (error) {
+    } catch {
 
-      showToast({
-        type: 'error',
-        message: 'Error cargando mesas'
-      })
+      showToast('Error cargando mesas', 'error')
 
     } finally {
       setLoading(false)
@@ -83,22 +91,21 @@ function ExamsPage() {
     return registrations.some(r => r.final_exam_id === examId)
   }
 
-  async function seatsInfo(examId: string, maxStudents: number) {
+  async function seatsTaken(examId: string) {
 
     const { count } = await supabase
-      .from('final_exam_registrations')
+      .from('exam_enrollments')
       .select('*', { count: 'exact', head: true })
       .eq('final_exam_id', examId)
 
-    return {
-      count: count || 0,
-      max: maxStudents || null
-    }
+    return count || 0
   }
 
-  function examClosed(examDate: string) {
+  function examClosed(dateStr: string) {
 
-    const exam = new Date(examDate)
+    if (!dateStr) return true
+
+    const exam = new Date(dateStr + (dateStr.length <= 10 ? 'T12:00:00' : ''))
     const now = new Date()
 
     const diff = exam.getTime() - now.getTime()
@@ -112,81 +119,62 @@ function ExamsPage() {
     if (!student) return
 
     if (isRegistered(exam.id)) {
-      showToast({
-        type: 'info',
-        message: 'Ya estás inscripto'
-      })
+      showToast('Ya estás inscripto', 'info')
       return
     }
 
-    if (examClosed(exam.exam_date)) {
-      showToast({
-        type: 'error',
-        message: 'La inscripción cierra 24 hs antes del examen'
-      })
+    const when = examDateString(exam)
+    if (examClosed(when)) {
+      showToast('La inscripción cierra 24 hs antes del examen', 'error')
       return
     }
 
-    const seats = await seatsInfo(exam.id, exam.max_students)
-
-    if (seats.max && seats.count >= seats.max) {
-
-      showToast({
-        type: 'error',
-        message: 'No hay cupos disponibles'
-      })
-
-      return
+    const maxStudents = exam.max_students
+    if (maxStudents != null && maxStudents > 0) {
+      const taken = await seatsTaken(exam.id)
+      if (taken >= maxStudents) {
+        showToast('No hay cupos disponibles', 'error')
+        return
+      }
     }
 
     const { error } = await supabase
-      .from('final_exam_registrations')
+      .from('exam_enrollments')
       .insert({
         final_exam_id: exam.id,
         student_id: student.id,
-        status: 'registered'
       })
 
     if (error) {
 
-      showToast({
-        type: 'error',
-        message: error.message
-      })
+      showToast(error.message, 'error')
 
       return
     }
 
-    showToast({
-      type: 'success',
-      message: 'Inscripción realizada'
-    })
+    showToast('Inscripción realizada')
 
     loadData()
   }
 
   async function cancelRegistration(examId: string) {
 
+    if (!student) return
+
     const { error } = await supabase
-      .from('final_exam_registrations')
+      .from('exam_enrollments')
       .delete()
       .eq('final_exam_id', examId)
       .eq('student_id', student.id)
 
     if (error) {
 
-      showToast({
-        type: 'error',
-        message: 'Error cancelando inscripción'
-      })
+      showToast('Error cancelando inscripción', 'error')
 
       return
     }
 
-    showToast({
-      type: 'success',
-      message: 'Inscripción cancelada'
-    })
+    showToast('Inscripción cancelada')
 
     loadData()
   }
@@ -212,7 +200,8 @@ function ExamsPage() {
         {exams.map(exam => {
 
           const registered = isRegistered(exam.id)
-          const closed = examClosed(exam.exam_date)
+          const when = examDateString(exam)
+          const closed = examClosed(when)
 
           return (
 
@@ -231,7 +220,7 @@ function ExamsPage() {
 
                   <span className="flex items-center gap-1">
                     <Calendar size={14} />
-                    {exam.exam_date}
+                    {when || '—'}
                   </span>
 
                   <span className="flex items-center gap-1">
@@ -251,8 +240,9 @@ function ExamsPage() {
               {registered ? (
 
                 <button
+                  type="button"
                   onClick={() => cancelRegistration(exam.id)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded"
+                  className="btn-secondary px-4 py-2 text-slate-700"
                 >
                   Cancelar inscripción
                 </button>
@@ -266,8 +256,9 @@ function ExamsPage() {
               ) : (
 
                 <button
+                  type="button"
                   onClick={() => registerExam(exam)}
-                  className="bg-[#7A1E2C] text-white px-4 py-2 rounded hover:bg-[#651823]"
+                  className="btn-primary px-4 py-2"
                 >
                   Inscribirse
                 </button>
